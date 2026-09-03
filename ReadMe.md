@@ -278,7 +278,7 @@ $$
 
 ### Result
 
-![Sin(x) Function Approximation](sinx_graph.jpg)
+![Sin(x) Function Approximation](sin_graph.jpg)
 
 The graph shows the neural network prediction following the target sine curve across the specified range.
 
