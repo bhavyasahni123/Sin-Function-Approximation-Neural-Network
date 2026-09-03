@@ -1,255 +1,231 @@
-# Project 4 --- Sin(x) Function Approximation Using Neural Network
+# Sin(x) Function Approximation Using Neural Network
 
-A neural network implemented **from scratch in C++** to approximate the
-mathematical function:
+A neural network implemented **from scratch in C++** to approximate the mathematical function:
 
-\[ y = `\sin`{=tex}(x) \]
+$$
+y = \sin(x)
+$$
 
-The trained parameters are then used in **Python** to generate
-predictions and visualize the neural-network approximation against the
-actual `sin(x)` curve.
+The project uses a **single hidden-layer feedforward neural network** trained using **batch gradient descent and backpropagation**. No machine-learning frameworks are used.
 
-No PyTorch, TensorFlow, or scikit-learn was used for the neural-network
-implementation.
+---
 
-------------------------------------------------------------------------
+## Neural Network Architecture
 
-## 1. Objective
+* **Input layer:** 1 neuron
+* **Hidden layer:** 5 neurons
+* **Output layer:** 1 neuron
+* **Architecture:** 1 : 5 : 1
+* **Hidden activation:** Sigmoid
+* **Output activation:** Linear
+* **Loss:** Mean Squared Error (MSE)
+* **Optimization:** Batch Gradient Descent
+* **Training method:** Backpropagation
 
-The objective of this project is to train a small feed-forward neural
-network to learn the relationship:
+---
 
-\[ x `\rightarrow `{=tex}`\sin`{=tex}(x) \]
-
-Instead of explicitly programming the neural network to calculate
-`sin(x)`, the network learns an approximation from generated
-input-output examples.
-
-The project demonstrates:
-
--   Dataset generation
--   Feed-forward neural networks
--   Sigmoid activation
--   Linear output activation
--   Forward propagation
--   Backpropagation
--   Batch gradient descent
--   SSE and MSE calculation
--   Function approximation
--   C++ implementation
--   Python visualization
-
-------------------------------------------------------------------------
-
-## 2. Neural Network Architecture
-
-The network uses the following architecture:
-
-``` text
-Input Layer       Hidden Layer          Output Layer
-
-    x          ┌── h1 ──┐
-               ├── h2 ──┤
-               ├── h3 ──┤
-               ├── h4 ──┤──────► ŷ
-               └── h5 ──┘
-
-             1 : 5 : 1
-```
-
-### Architecture
-
-  Layer      Neurons Activation
-  -------- --------- ------------
-  Input            1 None
-  Hidden           5 Sigmoid
-  Output           1 Linear
-
-Total trainable parameters:
-
-\[ 5 + 5 + 5 + 1 = 16 \]
-
-There are:
-
--   5 input-to-hidden weights
--   5 hidden biases
--   5 hidden-to-output weights
--   1 output bias
-
-------------------------------------------------------------------------
-
-## 3. Dataset Generation
+## Dataset
 
 The dataset is generated directly inside the C++ program.
 
-The input range is:
-
-\[ x `\in [-\pi,\pi]`{=tex}\]
-
 For every randomly generated input:
 
-\[ y = `\sin`{=tex}(x) \]
+$$
+x \in [-\pi,\pi]
+$$
 
-The program generates:
+the corresponding target is calculated as:
 
-**50,000 training data points**
+$$
+y = \sin(x)
+$$
 
-using a uniform random distribution between `-π` and `π`.
+### Dataset Size
 
-The random engine is initialized as:
+**50,000 training samples**
 
-``` cpp
+The random number generator is initialized with:
+
+```cpp
 default_random_engine re(1);
 ```
 
 Using a fixed seed makes the generated dataset reproducible.
 
-------------------------------------------------------------------------
+---
 
-## 4. Training Method
+## Forward Propagation
 
-This project uses **batch learning**.
+For each input \(x\), the five hidden neurons calculate:
 
-For every epoch:
+$$
+a_1=w_1x+b_1
+$$
 
-1.  Every training sample is passed through the network.
-2.  Forward propagation is performed.
-3.  The error is calculated.
-4.  Gradients are accumulated for all 50,000 samples.
-5.  The accumulated gradients are averaged.
-6.  Parameters are updated once at the end of the epoch.
+$$
+a_2=w_2x+b_2
+$$
 
-Therefore, parameters are **not updated after every individual sample**.
+$$
+a_3=w_3x+b_3
+$$
 
-The update is:
+$$
+a_4=w_4x+b_4
+$$
 
-\[ w `\leftarrow `{=tex}w + `\eta `{=tex}`\frac{\Delta w}{N}`{=tex} \]
+$$
+a_5=w_5x+b_5
+$$
 
-where:
+The sigmoid activation function is:
 
--   (`\eta`{=tex}) = learning rate
--   \(N\) = number of training samples
-
-------------------------------------------------------------------------
-
-## 5. Forward Propagation
-
-For each input (x):
-
-### Hidden layer
-
-\[ a_j = w_jx+b_j \]
-
-The sigmoid activation is:
-
-\[ `\sigma`{=tex}(a)=`\frac{1}{1+e^{-a}}`{=tex} \]
+$$
+\sigma(x)=\frac{1}{1+e^{-x}}
+$$
 
 Therefore:
 
-\[ z_j=`\sigma`{=tex}(a_j) \]
-
-for the five hidden neurons.
-
-### Output layer
+$$
+z_j=\sigma(a_j)
+$$
 
 The output neuron uses a linear activation:
 
-\[ `\hat `{=tex}y = v_1z_1+v_2z_2+v_3z_3+v_4z_4+v_5z_5+v_0 \]
+$$
+\hat{y}
+=
+v_1z_1+
+v_2z_2+
+v_3z_3+
+v_4z_4+
+v_5z_5+
+v_0
+$$
 
-The network prediction is therefore:
+---
 
-\[ `\boxed{\hat y = NN(x)}`{=tex} \]
+## Error Calculation
 
-------------------------------------------------------------------------
+For each training sample:
 
-## 6. Error and Loss
+$$
+e=y-\hat{y}
+$$
 
-For each training example:
+The Sum Squared Error is:
 
-\[ e = y-`\hat `{=tex}y \]
+$$
+SSE=\sum_{i=1}^{N}(y_i-\hat{y}_i)^2
+$$
 
-The Sum of Squared Errors is:
+and the Mean Squared Error is:
 
-\[ SSE=`\sum`{=tex}\_{i=1}^{N}(y_i-`\hat `{=tex}y_i)^2 \]
+$$
+MSE=\frac{SSE}{N}
+$$
 
-The Mean Squared Error is:
+Training was configured to stop early if:
 
-\[ MSE=`\frac{SSE}{N}`{=tex} \]
+$$
+MSE < 0.00001
+$$
 
-The final training MSE was approximately:
+In the final run, the network did not reach this threshold and completed the full **100,000 epochs**, achieving a final MSE of approximately:
 
-\[ `\boxed{0.000403}`{=tex} \]
-
-------------------------------------------------------------------------
-
-## 7. Backpropagation
-
-The output-layer error is propagated back through the hidden layer.
-
-For the hidden neurons:
-
-\[ `\delta`{=tex}\_j = e,v_j,z_j(1-z_j) \]
-
-The accumulated gradients are then calculated for:
-
-### Input-to-hidden weights
-
-\[ `\Delta `{=tex}w_j = `\delta`{=tex}\_jx \]
-
-### Hidden biases
-
-\[ `\Delta `{=tex}b_j = `\delta`{=tex}\_j \]
-
-### Hidden-to-output weights
-
-\[ `\Delta `{=tex}v_j = ez_j \]
-
-### Output bias
-
-\[ `\Delta `{=tex}b_0=e \]
-
-The gradients are accumulated over the complete training dataset and
-then averaged before updating the parameters.
-
-------------------------------------------------------------------------
-
-## 8. Training Configuration
-
-  Parameter                                 Value
-  ---------------------- ------------------------
-  Function                               `sin(x)`
-  Input range                           `[-π, π]`
-  Training samples                         50,000
-  Hidden neurons                                5
-  Output neurons                                1
-  Hidden activation                       Sigmoid
-  Output activation                        Linear
-  Learning rate                               0.1
-  Maximum epochs                          100,000
-  Training method          Batch gradient descent
-  Final epoch reached                     100,000
-  Final MSE                            \~0.000403
-  Early-stop threshold                    0.00001
-  Random seed                                   1
-
-The early stopping condition was:
-
-``` cpp
-if(MSE < 0.00001){
-    break;
-}
+```text
+0.000403
 ```
 
-The threshold was not reached, so training continued until the maximum
-of **100,000 epochs**.
+---
 
-------------------------------------------------------------------------
+## Training
 
-## 9. Final Trained Parameters
+The network uses **batch learning**.
 
-### Input → Hidden Weights
+During each epoch:
 
-``` text
+1. All 50,000 training samples are processed.
+2. Forward propagation is performed.
+3. The error for every sample is calculated.
+4. Gradients are accumulated.
+5. The parameters are updated once after the complete dataset has been processed.
+
+The learning rate used was:
+
+```text
+0.1
+```
+
+Unlike sequential/online learning, the weights are **not updated after every individual sample**.
+
+---
+
+## Backpropagation
+
+For the output layer:
+
+$$
+\Delta v_j=e z_j
+$$
+
+$$
+\Delta v_0=e
+$$
+
+For the hidden layer:
+
+$$
+\delta_j=e v_j z_j(1-z_j)
+$$
+
+The corresponding gradients are:
+
+$$
+\Delta w_j=\delta_jx
+$$
+
+$$
+\Delta b_j=\delta_j
+$$
+
+After processing the complete dataset, the parameters are updated using:
+
+$$
+w_j \leftarrow w_j+\eta\frac{\Delta w_j}{N}
+$$
+
+where:
+
+* \(\eta\) = learning rate
+* \(N\) = number of training samples
+
+---
+
+## Final Training Results
+
+| Parameter                |          Value |
+| ------------------------ | -------------: |
+| Function                 |  \(y=\sin(x)\) |
+| Input range              | \([-\pi,\pi]\) |
+| Training samples         |         50,000 |
+| Hidden neurons           |              5 |
+| Architecture             |      1 : 5 : 1 |
+| Hidden activation        |        Sigmoid |
+| Output activation        |         Linear |
+| Learning rate            |            0.1 |
+| Maximum epochs           |        100,000 |
+| Actual epochs            |        100,000 |
+| Early stopping threshold |  MSE < 0.00001 |
+| Final MSE                |      ~0.000403 |
+
+---
+
+## Final Weights
+
+### Input → Hidden Layer
+
+```text
 w1 =  0.524800
 w2 =  0.406670
 w3 = -0.473325
@@ -257,9 +233,9 @@ w4 = -1.840675
 w5 =  1.654361
 ```
 
-### Hidden Biases
+### Hidden Layer Biases
 
-``` text
+```text
 w01 =  0.944361
 w02 = -0.164548
 w03 =  0.813894
@@ -267,9 +243,9 @@ w04 = -1.510909
 w05 = -1.111656
 ```
 
-### Hidden → Output Weights
+### Hidden → Output Layer
 
-``` text
+```text
 v1 = -3.943300
 v2 = -4.031764
 v3 =  4.857428
@@ -279,173 +255,61 @@ v5 =  4.360074
 
 ### Output Bias
 
-``` text
+```text
 v0 = 0.835396
 ```
 
-------------------------------------------------------------------------
+---
 
-## 10. Visualization
+## Visualization
 
-The Python program uses the trained parameters from the C++
-implementation.
+The trained network was implemented in Python using the final learned weights.
 
-The full mathematical curve is plotted using:
+The graph contains:
 
-\[ y=`\sin`{=tex}(x) \]
+* **Blue curve:** Actual \(\sin(x)\)
+* **Red curve:** Neural network prediction
 
-over 100,000 points.
+The prediction was evaluated at **100,000 test points** uniformly distributed across:
 
-The neural network is evaluated at the same:
+$$
+[-\pi,\pi]
+$$
 
-**100,000 test points**
+### Result
 
-and its predictions are plotted against the actual function.
+![Sin(x) Function Approximation](sinx_graph.png)
 
-![Sin(x) Approximation](sin_approximation.png)
+The graph shows the neural network prediction following the target sine curve across the specified range.
 
-The close overlap between the two curves demonstrates that the neural
-network has successfully learned a good approximation of `sin(x)` over
-the interval `[-π, π]`.
+---
 
-------------------------------------------------------------------------
+## Test Data
 
-## 11. Why Use Two Languages?
+For visualization, **100,000 equally spaced test points** were generated from:
 
-### C++
+$$
+-\pi \rightarrow \pi
+$$
 
-The C++ implementation is used for:
+For each point:
 
--   Neural-network mathematics
--   Dataset generation
--   Forward propagation
--   Backpropagation
--   Batch gradient descent
--   Training
--   Parameter calculation
-
-### Python
-
-Python is used for:
-
--   Loading the trained parameters
--   Running the forward pass
--   Generating dense test points
--   Visualization
--   Comparing the learned function with the actual function
-
-The neural-network prediction in Python reproduces the same mathematical
-forward pass used during C++ training.
-
-------------------------------------------------------------------------
-
-## 12. Project Structure
-
-``` text
-Project_4_Sin_Approximation/
-│
-├── cpp/
-│   └── main.cpp
-│
-├── python/
-│   └── graph.py
-│
-├── results/
-│   └── sin_approximation.png
-│
-└── README.md
+```text
+Actual    = sin(x)
+Predicted = NeuralNetwork(x)
 ```
 
-------------------------------------------------------------------------
+The predicted values were then plotted against the original sine curve.
 
-## 13. Technologies Used
+---
 
--   C++
--   Python
--   C++ STL `vector`
--   C++ `<random>`
--   C++ `<cmath>`
--   Python `math`
--   Python `matplotlib`
+## Technologies Used
 
-No machine-learning framework was used.
-
-------------------------------------------------------------------------
-
-## 14. Key Learning Outcomes
-
-This project demonstrates the complete training process of a neural
-network without relying on a machine-learning library.
-
-The main concepts implemented manually are:
-
-``` text
-Dataset
-   ↓
-Forward Propagation
-   ↓
-Prediction
-   ↓
-Error
-   ↓
-Backpropagation
-   ↓
-Gradient Accumulation
-   ↓
-Batch Parameter Update
-   ↓
-Next Epoch
-   ↓
-Final Model
-   ↓
-Function Approximation
-```
-
-The project also demonstrates the difference between **sequential/online
-learning** and **batch learning**.
-
-In the earlier sequential version, parameters were updated after
-individual examples.
-
-In this version, gradients from the entire dataset are accumulated
-first, and parameters are updated once per epoch.
-
-------------------------------------------------------------------------
-
-## 15. Result
-
-The trained `1:5:1` neural network successfully learned a close
-approximation of:
-
-\[ `\boxed{y=\sin(x)}`{=tex} \]
-
-using only:
-
--   5 hidden neurons
--   16 trainable parameters
--   50,000 generated training examples
--   batch gradient descent
--   sigmoid hidden neurons
--   a linear output neuron
-
-After 100,000 epochs, the training MSE reached approximately:
-
-\[ `\boxed{MSE \approx 0.000403}`{=tex} \]
-
-The visualization shows that the predicted function closely follows the
-actual `sin(x)` curve throughout most of the interval.
-
-------------------------------------------------------------------------
-
-## 16. Conclusion
-
-This project implements a complete feed-forward neural network from
-scratch for nonlinear function approximation.
-
-The network does not know the mathematical formula for `sin(x)` during
-prediction. Instead, it learns the relationship between input `x` and
-target `sin(x)` from the generated training dataset.
-
-The project provides a foundation for moving from manually implemented
-small neural networks toward more advanced architectures and
-machine-learning systems.
+* **C++**
+* **Python**
+* **Mathematics**
+* **Artificial Neural Networks**
+* **Backpropagation**
+* **Batch Gradient Descent**
+* **Mean Squared Error**
+* **Matplotlib**
