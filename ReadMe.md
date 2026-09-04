@@ -92,16 +92,15 @@ $$
 
 The output neuron uses a linear activation:
 
-$$
-\hat{y}
+y_hat
 =
-v_1z_1+
-v_2z_2+
-v_3z_3+
-v_4z_4+
-v_5z_5+
-v_0
-$$
+v1z1+
+v2z2+
+v3z3+
+v4z4+
+v5z5+
+v0
+
 
 ---
 
@@ -192,12 +191,12 @@ $$
 After processing the complete dataset, the parameters are updated using:
 
 $$
-w_j \leftarrow w_j+\eta\frac{\Delta w_j}{N}
+w_j \leftarrow w_j+n\frac{\Delta w_j}{N}
 $$
 
 where:
 
-* \(\eta\) = learning rate
+* \(n) = learning rate
 * \(N\) = number of training samples
 
 ---
